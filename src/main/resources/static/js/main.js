@@ -2,31 +2,46 @@
 
 var usernamePage = document.querySelector('#username-page');
 var chatPage = document.querySelector('#chat-page');
+var roomListPage = document.querySelector('#room-list-page');
+
 var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
+let roomInput = document.querySelector('#room');
+
 
 var stompClient = null;
 var username = null;
+var room = null;
+
+const roomMessages = new Map();
 
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
+function updateChatTitle() {
+    document.querySelector('#roomTitle').textContent = room
+}
+
 function connect(event) {
     username = document.querySelector('#name').value.trim();
+    room = roomInput.value.trim();
+    console.info("HERE " + room + " " + username)
+    if(username != null && room != null) {
 
-    if(username) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
+        updateChatTitle();
 
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, onConnected, onError);
+        roomMessages.set(room, []);
     }
     event.preventDefault();
 }
@@ -34,16 +49,34 @@ function connect(event) {
 
 function onConnected() {
     // Subscribe to the Public Topic
-    stompClient.subscribe('/topic/public', onMessageReceived);
+    stompClient.subscribe('/topic/' + room, onMessageReceived);
 
     // Tell your username to the server
     stompClient.send("/app/chat.addUser",
         {},
-        JSON.stringify({sender: username, type: 'JOIN'})
+        JSON.stringify({sender: username, room: room, type: 'JOIN'})
     )
 
     connectingElement.classList.add('hidden');
+    createRoomButton(room);
 }
+
+
+function createRoomButton(roomName) {
+    if (document.querySelector(`[data-room="${roomName}"]`)) {
+        return;
+    }
+
+    const button = document.createElement('button');
+    button.textContent = roomName;
+    button.classList.add('room-button');
+
+    button.addEventListener('click', function () {
+        switchRoom(roomName);
+    });
+    roomListPage.appendChild(button);
+}
+
 
 
 function onError(error) {
@@ -58,6 +91,7 @@ function sendMessage(event) {
         var chatMessage = {
             sender: username,
             content: messageInput.value,
+            room: room,
             type: 'CHAT'
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
@@ -70,6 +104,15 @@ function sendMessage(event) {
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
 
+    if (message.room === room) {
+        draw(message)
+        messageArea.scrollTop = messageArea.scrollHeight;
+    }
+
+    roomMessages.get(message.room).push(message);
+}
+
+function draw(message) {
     var messageElement = document.createElement('li');
 
     if(message.type === 'JOIN') {
@@ -101,7 +144,6 @@ function onMessageReceived(payload) {
     messageElement.appendChild(textElement);
 
     messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
 }
 
 
@@ -114,5 +156,30 @@ function getAvatarColor(messageSender) {
     return colors[index];
 }
 
+function addChat(event) {
+    event.preventDefault();
+    roomInput.value = '';
+    messageArea.innerHTML = '';
+    usernamePage.classList.remove('hidden');
+    chatPage.classList.add('hidden');
+}
+
+function switchRoom(newRoom) {
+    room = newRoom;
+    updateChatTitle();
+    redrawChat();
+}
+
+function redrawChat() {
+    messageArea.innerHTML = '';
+
+    const messages = roomMessages.get(room) || [];
+
+    messages.forEach(message => draw(message));
+
+    messageArea.scrollTop = messageArea.scrollHeight;
+}
+
 usernameForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)
+document.getElementById("addChat").addEventListener('click', addChat)

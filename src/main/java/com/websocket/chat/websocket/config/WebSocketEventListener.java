@@ -1,7 +1,7 @@
-package com.websocket.chat.config;
+package com.websocket.chat.websocket.config;
 
-import com.websocket.chat.ChatMessage;
-import com.websocket.chat.MessageType;
+import com.websocket.chat.message.domain.Message;
+import com.websocket.chat.message.MessageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -21,13 +21,22 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if (username != null) {
-            log.info("User disconnected: {}", username);
-            var chatMessage = ChatMessage.builder()
-                    .type(MessageType.LEAVE)
-                    .sender(username)
-                    .build();
-            messageTemplate.convertAndSend("/topic/public", chatMessage);
+
+        if (username == null) {
+            log.error("Username must not be null");
+            return;
+        }
+        String chats = (String) headerAccessor.getSessionAttributes().get("chats");
+        if (chats != null) {
+            for (String room : chats.split(":")) {
+                log.info("User disconnected: {}", username);
+                var chatMessage = Message.builder()
+                        .type(MessageType.LEAVE)
+                        .sender(username)
+                        .room(room)
+                        .build();
+                messageTemplate.convertAndSend("/topic/" + room, chatMessage);
+            }
         }
     }
 }

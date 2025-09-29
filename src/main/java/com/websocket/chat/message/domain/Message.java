@@ -1,5 +1,6 @@
-package com.websocket.chat;
+package com.websocket.chat.message.domain;
 
+import com.websocket.chat.message.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,9 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChatMessage {
+public class Message {
 
     private String content;
     private String sender;
+    private String room;
     private MessageType type;
 }
