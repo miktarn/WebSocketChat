@@ -1,10 +1,12 @@
 'use strict';
 
+var addChatPage = document.querySelector('#add-chat-page');
 var usernamePage = document.querySelector('#username-page');
 var chatPage = document.querySelector('#chat-page');
 var roomListPage = document.querySelector('#room-list-page');
 
 var usernameForm = document.querySelector('#usernameForm');
+var addChatForm = document.querySelector('#addChatForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
@@ -27,13 +29,19 @@ function updateChatTitle() {
     document.querySelector('#roomTitle').textContent = room
 }
 
-function connect(event) {
+function login(event) {
+    event.preventDefault()
     username = document.querySelector('#name').value.trim();
+    console.info("Hi "+ username)
+    usernamePage.classList.add('hidden');
+    addChatPage.classList.remove('hidden');
+}
+
+function connect(event) {
     room = roomInput.value.trim();
     console.info("HERE " + room + " " + username)
     if(username != null && room != null) {
-
-        usernamePage.classList.add('hidden');
+        addChatPage.classList.add('hidden');
         chatPage.classList.remove('hidden');
         updateChatTitle();
 
@@ -166,7 +174,7 @@ function addChat(event) {
     event.preventDefault();
     roomInput.value = '';
     messageArea.innerHTML = '';
-    usernamePage.classList.remove('hidden');
+    addChatPage.classList.remove('hidden');
     chatPage.classList.add('hidden');
 }
 
@@ -186,6 +194,7 @@ function redrawChat() {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-usernameForm.addEventListener('submit', connect, true)
+usernameForm.addEventListener('submit', login, true)
+addChatForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)
 document.getElementById("addChat").addEventListener('click', addChat)
