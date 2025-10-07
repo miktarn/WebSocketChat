@@ -40,8 +40,8 @@ function connect(event) {
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, onConnected, onError);
         roomMessages.set(room, []);
+        stompClient.connect({}, onConnected, onError);
     }
     event.preventDefault();
 }
@@ -59,6 +59,12 @@ function onConnected() {
 
     connectingElement.classList.add('hidden');
     createRoomButton(room);
+    axios.get("http://localhost:8080/message?room=" + room)
+        .then(response => {
+            console.log("HTTP GET response:", response.data);
+            roomMessages.set(room, response.data);
+            redrawChat()
+        })
 }
 
 

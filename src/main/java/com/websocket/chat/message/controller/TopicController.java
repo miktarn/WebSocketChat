@@ -1,6 +1,7 @@
-package com.websocket.chat.chat.controller;
+package com.websocket.chat.message.controller;
 
-import com.websocket.chat.message.domain.Message;
+import com.websocket.chat.message.ChatMessage;
+import com.websocket.chat.message.service.MessageService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -13,28 +14,29 @@ import org.springframework.stereotype.Controller;
 @Controller
 @Log
 @RequiredArgsConstructor
-public class ChatController {
-
+public class TopicController {
+    private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload Message message) {
+    public void sendMessage(@Payload ChatMessage message) {
         if (message.getRoom() != null) {
-            log.info(String.format("Message received for room %s from user %s",message.getRoom(), message.getSender()));
+            log.info(String.format("ChatMessage received for room %s from user %s",message.getRoom(), message.getSender()));
             messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
+            messageService.persist(message);
         } else {
             log.info("Null room recieved for user "+ message.getSender());
         }
     }
 
     @MessageMapping("/chat.addUser")
-    public void addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor) {
+    public void addUser(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
         saveUserInfoInSession(message, headerAccessor);
-
         messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
+        messageService.persist(message);
     }
 
-    private static void saveUserInfoInSession(Message message, SimpMessageHeaderAccessor headerAccessor) {
+    private static void saveUserInfoInSession(ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
         sessionAttributes.put("username", message.getSender());
 

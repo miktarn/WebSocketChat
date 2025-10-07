@@ -1,7 +1,8 @@
 package com.websocket.chat.websocket.config;
 
-import com.websocket.chat.message.domain.Message;
+import com.websocket.chat.message.ChatMessage;
 import com.websocket.chat.message.MessageType;
+import com.websocket.chat.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,6 +17,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messageTemplate;
+    private final MessageService messageService;
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
@@ -30,12 +32,13 @@ public class WebSocketEventListener {
         if (chats != null) {
             for (String room : chats.split(":")) {
                 log.info("User disconnected: {}", username);
-                var chatMessage = Message.builder()
+                var chatMessage = ChatMessage.builder()
                         .type(MessageType.LEAVE)
                         .sender(username)
                         .room(room)
                         .build();
                 messageTemplate.convertAndSend("/topic/" + room, chatMessage);
+                messageService.persist(chatMessage);
             }
         }
     }
