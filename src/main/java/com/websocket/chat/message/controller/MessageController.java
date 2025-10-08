@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(("message"))
+@RequestMapping("/message")
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;

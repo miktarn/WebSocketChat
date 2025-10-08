@@ -1,0 +1,26 @@
+package com.websocket.chat.user.service;
+
+import com.websocket.chat.user.dao.UserRepository;
+import com.websocket.chat.user.domain.DomainUser;
+import java.util.Collections;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public DomainUser createIfNotExists(String name) {
+        Optional<DomainUser> founded = userRepository.findByName(name);
+        if (founded.isPresent()) {
+            return founded.get();
+        }
+        return userRepository.save(DomainUser.builder()
+                .name(name)
+                .activeChats(Collections.emptyList())
+                .build());
+    }
+}

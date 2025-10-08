@@ -35,21 +35,34 @@ function login(event) {
     console.info("Hi "+ username)
     usernamePage.classList.add('hidden');
     addChatPage.classList.remove('hidden');
+
+    axios.post("http://localhost:8080/user?name=" + username)
+        .then(response => {
+            response.data.chatNames.forEach(createRoomButton)
+        })
 }
 
-function connect(event) {
+function findOrCreateChatRoom(event) {
     room = roomInput.value.trim();
     console.info("HERE " + room + " " + username)
+
     if(username != null && room != null) {
-        addChatPage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
-        updateChatTitle();
+        axios.post('http://localhost:8080/chat', {
+            name: room,
+            creatorName: username
+        }).then(() => connect(room))
 
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
+        function connect(room) {
+            addChatPage.classList.add('hidden');
+            chatPage.classList.remove('hidden');
+            updateChatTitle();
 
-        roomMessages.set(room, []);
-        stompClient.connect({}, onConnected, onError);
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            roomMessages.set(room, []);
+            stompClient.connect({}, onConnected, onError);
+        }
     }
     event.preventDefault();
 }
@@ -195,6 +208,6 @@ function redrawChat() {
 }
 
 usernameForm.addEventListener('submit', login, true)
-addChatForm.addEventListener('submit', connect, true)
+addChatForm.addEventListener('submit', findOrCreateChatRoom, true)
 messageForm.addEventListener('submit', sendMessage, true)
 document.getElementById("addChat").addEventListener('click', addChat)
