@@ -1,6 +1,5 @@
 package com.websocket.chat.user.controller;
 
-import com.websocket.chat.user.domain.DomainUser;
 import com.websocket.chat.user.dto.UserDtoMapper;
 import com.websocket.chat.user.dto.UserResponseDto;
 import com.websocket.chat.user.service.UserService;
@@ -19,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserResponseDto createIfNotExist(@RequestParam String name) {
-        return mapper.toDto(userService.createIfNotExists(name));
+    public UserResponseDto create(@RequestParam String name) {
+        return mapper.toDto(userService.create(name));
     }
 }

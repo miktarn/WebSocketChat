@@ -13,4 +13,6 @@ public interface ChatRepository extends JpaRepository<DomainChat, Long> {
     List<DomainChat> findAllByParticipantsContaining(DomainUser user);
 
     Optional<DomainChat> findByName(String name);
+
+    Boolean existsByName(String name);
 }

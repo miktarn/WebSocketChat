@@ -34,13 +34,46 @@
 
 <div id="add-chat-page"  class="hidden">
     <div class="interactive-container">
-        <h1 class="title">Type your username to enter the Chatroom</h1>
-        <form id="addChatForm" name="addChatForm">
+        <div class="form-group">
+            <button id="showConnectToChatPageButton" type="button" class="accent username-submit">
+                Connect to existing chat
+            </button>
+            <button id="showCreateChatPageButton" type="button" class="accent username-submit">
+                Create new chat
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="create-chat-page" class="hidden">
+    <div class="interactive-container">
+        <h1 class="title">Create new chat</h1>
+        <form id="createChatForm" name="createChatForm">
             <div class="form-group">
-                <input type="text" id="room" placeholder="Chatroom" autocomplete="off" class="form-control"/>
+                <input type="text" id="createRoomInput" placeholder="Chatroom" autocomplete="off" class="form-control"/>
+            </div>
+<!--            <div class="form-group">-->
+<!--                <input type="text" id="addUserToChatInput" placeholder="Chatroom" autocomplete="off" class="form-control"/>-->
+<!--                <button type="submit" class="accent username-submit">Add user to new chat</button>-->
+<!--            </div>-->
+<!--            <h3 class="connecting">Users that would be added: </h3>-->
+
+            <div class="form-group">
+                <button type="submit" class="accent username-submit">Create chat</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="enter-chat-page" class="hidden">
+    <div class="interactive-container">
+        <h1 class="title">Create new chat</h1>
+        <form id="enterChatForm" name="enterChatForm">
+            <div class="form-group">
+                <input type="text" id="connectToRoomInput" placeholder="Chatroom" autocomplete="off" class="form-control"/>
             </div>
             <div class="form-group">
-                <button type="submit" class="accent username-submit">Start Chatting</button>
+                <button type="submit" class="accent username-submit">Enter chat</button>
             </div>
         </form>
     </div>

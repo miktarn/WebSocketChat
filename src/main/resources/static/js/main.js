@@ -2,18 +2,22 @@
 
 import { state, setVisible} from "./state.js";
 import {drawMessage, drawRoomButton, redrawChat} from './ui.js';
-import { createUser, createChatRoom, fetchRoomMessages } from './api.js';
+import * as api from './api.js';
 
 var addChatPage = document.querySelector('#add-chat-page');
+var createChatPage = document.querySelector('#create-chat-page');
+var connectToChatPage = document.querySelector('#enter-chat-page');
 var chatPage = document.querySelector('#chat-page');
 
 var usernameForm = document.querySelector('#usernameForm');
-var addChatForm = document.querySelector('#addChatForm');
+var createChatForm = document.querySelector('#createChatForm');
 var messageForm = document.querySelector('#messageForm');
+var enterChatForm = document.querySelector('#enterChatForm');
 var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
-let roomInput = document.querySelector('#room');
+let createRoomInput = document.querySelector('#createRoomInput');
+let connectToRoomInput = document.querySelector('#connectToRoomInput');
 var addChatButton = document.querySelector('#addChatButton')
 
 var stompClient = null;
@@ -23,32 +27,49 @@ function login(event) {
     state.username = document.querySelector('#name').value.trim();
     console.info("Hi "+ state.username)
 
-    createUser(state.username)
+    api.createUser(state.username)
         .then(response => response.data.chatNames.forEach(drawRoomButton))
 
     setVisible(addChatPage)
     addChatButton.classList.remove('hidden');
 }
 
-function addChatRoom(event) {
-    state.room = roomInput.value.trim();
-    console.info("HERE " + state.room + " " + state.username)
+function createChatRoom(event) {
+    state.room = createRoomInput.value.trim();
+    console.info("Creating room: " + state.room + " " + state.username)
 
     if(state.username != null && state.room != null) {
-        createChatRoom(state.room, state.username)
-            .then(() => connect(state.room))
-
-        function connect(room) {
-            setVisible(chatPage)
-
-            var socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
-
-            state.roomMessages.set(room, []);
-            stompClient.connect({}, onConnected, onError);
-        }
+        api.createChatRoom(state.room, [state.username])
+            .then(() => connectToChat(state.room))
+            .catch(function (error) {
+                console.log(error);
+            })
     }
     event.preventDefault();
+}
+
+function enterChatRoom(event) {
+    state.room = connectToRoomInput.value.trim();
+    console.info("Connecting to room: " + state.room + " " + state.username)
+
+    if(state.username != null && state.room != null) {
+        api.connectUserToChat(state.room, state.username)
+            .then(() => connectToChat(state.room))
+            .catch(function (error) {
+                console.log(error);
+            })
+    }
+    event.preventDefault();
+}
+
+function connectToChat(room) {
+    setVisible(chatPage)
+
+    var socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    state.roomMessages.set(room, []);
+    stompClient.connect({}, onConnected, onError);
 }
 
 function onConnected() {
@@ -62,13 +83,13 @@ function onConnected() {
     )
 
     connectingElement.classList.add('hidden');
-    drawRoomButton(state.room);
-    fetchRoomMessages(state.room)
+    api.fetchRoomMessages(state.room)
         .then(response => {
             console.log("HTTP GET response:", response.data);
             state.roomMessages.set(state.room, response.data);
             redrawChat()
         })
+    drawRoomButton(state.room);
 }
 
 function onError(error) {
@@ -109,6 +130,11 @@ function addChat(event) {
 }
 
 usernameForm.addEventListener('submit', login, true)
-addChatForm.addEventListener('submit', addChatRoom, true)
+document.getElementById("showConnectToChatPageButton")
+    .addEventListener('click', () => setVisible(connectToChatPage))
+document.getElementById("showCreateChatPageButton")
+    .addEventListener('click', () => setVisible(createChatPage))
+createChatForm.addEventListener('submit', createChatRoom, true)
+enterChatForm.addEventListener('submit', enterChatRoom, true)
 messageForm.addEventListener('submit', sendMessage, true)
 document.getElementById("addChatButton").addEventListener('click', addChat)

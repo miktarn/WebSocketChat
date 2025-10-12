@@ -13,14 +13,14 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public DomainUser createIfNotExists(String name) {
+    public DomainUser create(String name) {
         Optional<DomainUser> founded = userRepository.findByName(name);
         if (founded.isPresent()) {
             return founded.get();
         }
         return userRepository.save(DomainUser.builder()
                 .name(name)
-                .activeChats(Collections.emptyList())
+                .activeChats(Collections.emptySet())
                 .build());
     }
 }

@@ -1,6 +1,7 @@
 package com.websocket.chat.chat.controller;
 
 import com.websocket.chat.chat.domain.DomainChat;
+import com.websocket.chat.chat.dto.AddUserToChatRequest;
 import com.websocket.chat.chat.dto.CreateChatRequest;
 import com.websocket.chat.chat.service.ChatService;
 import java.util.List;
@@ -19,13 +20,18 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @GetMapping("/user")
+    @GetMapping
     public List<DomainChat> getChatsByUserName(@RequestParam String name) {
         return chatService.getChatsByUserName(name);
     }
 
     @PostMapping
-    public DomainChat createIfNotExist(@RequestBody CreateChatRequest req) {
-        return chatService.createIfNotExist(req.name(), req.creatorName());
+    public DomainChat create(@RequestBody CreateChatRequest req) {
+        return chatService.create(req.name(), req.userNames());
+    }
+
+    @PostMapping("/user")
+    public DomainChat addUserToChat(@RequestBody AddUserToChatRequest req) {
+        return chatService.addUserToChat(req.chatName(), req.userName());
     }
 }

@@ -8,6 +8,7 @@ import com.websocket.chat.user.domain.DomainUser;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,19 +29,29 @@ public class ChatService {
     }
 
     @Transactional
-    public DomainChat createIfNotExist(String chatName, String creatorName) {
-        Optional<DomainChat> chat = chatRepository.findByName(chatName);
-        DomainUser creator = userRepository.findByName(creatorName).orElseThrow();
-        if (chat.isPresent()) {
-            chat.get().getParticipants().add(creator);
-            return chatRepository.save(chat.get());
+    public DomainChat create(String chatName, Set<String> userNames) {
+        if (chatRepository.existsByName(chatName)) {
+            throw new RuntimeException(String.format("Chat %s already exist", chatName));
         }
-
+        Set<DomainUser> users = userRepository.findByNameIn(userNames);
         DomainChat newChat = DomainChat.builder()
                 .name(chatName)
-                .participants(List.of(creator))
+                .participants(users)
                 .build();
-        creator.getActiveChats().add(newChat);
+        users.forEach(u -> u.getActiveChats().add(newChat));
         return chatRepository.save(newChat);
+    }
+
+    @Transactional
+    public DomainChat addUserToChat(String chatName, String userName) {
+        Optional<DomainChat> chat = chatRepository.findByName(chatName);
+        if (chat.isPresent()) {
+            DomainUser user = userRepository.findByName(userName).orElseThrow();
+            chat.get().getParticipants().add(user);
+            user.getActiveChats().add(chat.get());
+            return chatRepository.save(chat.get());
+        } else {
+            throw new RuntimeException(String.format("Chat %s is not exist", chatName));
+        }
     }
 }

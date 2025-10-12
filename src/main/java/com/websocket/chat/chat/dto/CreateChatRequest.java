@@ -1,6 +1,5 @@
 package com.websocket.chat.chat.dto;
 
-public record CreateChatRequest(
-        String name, String creatorName
-) {
-}
+import java.util.Set;
+
+public record CreateChatRequest(String name, Set<String> userNames) { }

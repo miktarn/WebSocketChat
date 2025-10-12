@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class MessageService {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
 
+    @Transactional
     public ChatMessage persist(ChatMessage chatMessage) {
         Optional<DomainUser> user = userRepository.findByName(chatMessage.getSender());
         Optional<DomainChat> chat = chatRepository.findByName(chatMessage.getRoom());
