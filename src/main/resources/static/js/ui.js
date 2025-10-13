@@ -1,7 +1,8 @@
 'use strict';
 
 import {getAvatarColor} from "./utils.js";
-import {state, setVisible} from "./state.js";
+import {setVisible, state} from "./state.js";
+import {connectToChat} from "./main.js";
 
 var messageArea = document.querySelector('#messageArea');
 var roomListPage = document.querySelector('#room-list-page');
@@ -60,8 +61,13 @@ export function drawRoomButton(roomName) {
 
 function switchRoom(newRoom) {
     state.room = newRoom;
+    if (!state.roomMessages.has(newRoom)) {
+        console.log("Room is "+ newRoom + " and room messages is " + state.roomMessages)
+        connectToChat(newRoom)
+    } else {
+        redrawChat();
+    }
     setVisible(chatPage)
-    redrawChat();
 }
 
 export function redrawChat() {
@@ -74,4 +80,9 @@ export function redrawChat() {
     messages.forEach(message => drawMessage(message));
 
     messageArea.scrollTop = messageArea.scrollHeight;
+}
+
+export function updateInvitedUsersHeader() {
+    let invitedUsersHeader = document.querySelector('#invitedUserList');
+    invitedUsersHeader.textContent = state.invitedUsers.join(", ")
 }

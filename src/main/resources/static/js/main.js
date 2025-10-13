@@ -1,7 +1,7 @@
 'use strict';
 
 import { state, setVisible} from "./state.js";
-import {drawMessage, drawRoomButton, redrawChat} from './ui.js';
+import {drawMessage, drawRoomButton, redrawChat, updateInvitedUsersHeader} from './ui.js';
 import * as api from './api.js';
 
 var addChatPage = document.querySelector('#add-chat-page');
@@ -17,8 +17,9 @@ var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 let createRoomInput = document.querySelector('#createRoomInput');
-let connectToRoomInput = document.querySelector('#connectToRoomInput');
+let enterChatInput = document.querySelector('#enterChatInput');
 var addChatButton = document.querySelector('#addChatButton')
+
 
 var stompClient = null;
 
@@ -39,8 +40,12 @@ function createChatRoom(event) {
     console.info("Creating room: " + state.room + " " + state.username)
 
     if(state.username != null && state.room != null) {
-        api.createChatRoom(state.room, [state.username])
-            .then(() => connectToChat(state.room))
+        api.createChatRoom(state.room, state.invitedUsers)
+            .then(() => {
+                connectToChat(state.room);
+                drawRoomButton(state.room);
+                setVisible(chatPage)
+            })
             .catch(function (error) {
                 console.log(error);
             })
@@ -49,34 +54,36 @@ function createChatRoom(event) {
 }
 
 function enterChatRoom(event) {
-    state.room = connectToRoomInput.value.trim();
+    event.preventDefault();
+
+    state.room = enterChatInput.value.trim();
     console.info("Connecting to room: " + state.room + " " + state.username)
 
     if(state.username != null && state.room != null) {
         api.connectUserToChat(state.room, state.username)
-            .then(() => connectToChat(state.room))
+            .then(() => {
+                connectToChat(state.room);
+                drawRoomButton(state.room);
+                setVisible(chatPage)
+            })
             .catch(function (error) {
                 console.log(error);
             })
     }
-    event.preventDefault();
 }
 
-function connectToChat(room) {
-    setVisible(chatPage)
+export function connectToChat(room) {
+    state.roomMessages.set(room, []);
 
     var socket = new SockJS('/ws');
-    stompClient = Stomp.over(socket);
+    stompClient =  Stomp.over(socket);
 
-    state.roomMessages.set(room, []);
     stompClient.connect({}, onConnected, onError);
 }
 
 function onConnected() {
-    // Subscribe to the Public Topic
     stompClient.subscribe('/topic/' + state.room, onMessageReceived);
 
-    // Tell your username to the server
     stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({sender: state.username, room: state.room, type: 'JOIN'})
@@ -89,7 +96,6 @@ function onConnected() {
             state.roomMessages.set(state.room, response.data);
             redrawChat()
         })
-    drawRoomButton(state.room);
 }
 
 function onError(error) {
@@ -123,18 +129,38 @@ function onMessageReceived(payload) {
     state.roomMessages.get(message.room).push(message);
 }
 
-function addChat(event) {
-    event.preventDefault();
-    roomInput.value = '';
-    setVisible(addChatPage)
+usernameForm.addEventListener('submit', login, true)
+
+function showEnterChatPage() {
+    enterChatInput.value = '';
+    setVisible(connectToChatPage)
 }
 
-usernameForm.addEventListener('submit', login, true)
-document.getElementById("showConnectToChatPageButton")
-    .addEventListener('click', () => setVisible(connectToChatPage))
-document.getElementById("showCreateChatPageButton")
-    .addEventListener('click', () => setVisible(createChatPage))
+function showCreateChatPage() {
+    createRoomInput.value = '';
+    state.invitedUsers = [state.username]
+    updateInvitedUsersHeader()
+    setVisible(createChatPage)
+}
+
+function inviteUser() {
+    let inviteUserInput = document.querySelector("#inviteUserInput");
+    let userName = inviteUserInput.value.trim();
+    if (!api.userExists(userName)) {
+        console.log("User " + userName + " not exist!")
+    } else if (state.invitedUsers.includes(userName)) {
+        console.log("User " + userName + " already invited!")
+    } else {
+        state.invitedUsers.push(userName);
+        updateInvitedUsersHeader()
+        inviteUserInput.value = '';
+    }
+}
+
+document.getElementById("inviteUserButton").addEventListener('click', inviteUser)
+document.getElementById("showEnterChatPageButton").addEventListener('click', showEnterChatPage)
+document.getElementById("showCreateChatPageButton").addEventListener('click', showCreateChatPage)
 createChatForm.addEventListener('submit', createChatRoom, true)
 enterChatForm.addEventListener('submit', enterChatRoom, true)
 messageForm.addEventListener('submit', sendMessage, true)
-document.getElementById("addChatButton").addEventListener('click', addChat)
+document.getElementById("addChatButton").addEventListener('click', () => setVisible(addChatPage))

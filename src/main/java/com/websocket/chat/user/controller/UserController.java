@@ -4,6 +4,7 @@ import com.websocket.chat.user.dto.UserDtoMapper;
 import com.websocket.chat.user.dto.UserResponseDto;
 import com.websocket.chat.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,5 +21,10 @@ public class UserController {
     @PostMapping
     public UserResponseDto create(@RequestParam String name) {
         return mapper.toDto(userService.create(name));
+    }
+
+    @GetMapping("/exists")
+    public boolean exists(@RequestParam String name) {
+        return userService.exists(name);
     }
 }
