@@ -1,6 +1,6 @@
 'use strict';
 
-import { state, setVisible} from "./state.js";
+import { state, setVisible, initStompClient} from "./state.js";
 import {drawMessage, drawRoomButton, redrawChat, updateInvitedUsersHeader} from './ui.js';
 import * as api from './api.js';
 
@@ -20,8 +20,7 @@ let createRoomInput = document.querySelector('#createRoomInput');
 let enterChatInput = document.querySelector('#enterChatInput');
 var addChatButton = document.querySelector('#addChatButton')
 
-
-var stompClient = null;
+initStompClient()
 
 function login(event) {
     event.preventDefault()
@@ -75,16 +74,9 @@ function enterChatRoom(event) {
 export function connectToChat(room) {
     state.roomMessages.set(room, []);
 
-    var socket = new SockJS('/ws');
-    stompClient =  Stomp.over(socket);
+    state.stompClient.subscribe('/topic/' + state.room, onMessageReceived);
 
-    stompClient.connect({}, onConnected, onError);
-}
-
-function onConnected() {
-    stompClient.subscribe('/topic/' + state.room, onMessageReceived);
-
-    stompClient.send("/app/chat.addUser",
+    state.stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({sender: state.username, room: state.room, type: 'JOIN'})
     )
@@ -98,21 +90,17 @@ function onConnected() {
         })
 }
 
-function onError(error) {
-    connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
-    connectingElement.style.color = 'red';
-}
 
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
-    if(messageContent && stompClient) {
+    if(messageContent && state.stompClient) {
         var chatMessage = {
             sender: state.username,
             content: messageInput.value,
             room: state.room,
             type: 'CHAT'
         };
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        state.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
     event.preventDefault();
