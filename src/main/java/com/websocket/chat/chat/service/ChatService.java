@@ -5,7 +5,9 @@ import com.websocket.chat.chat.dao.ChatRepository;
 import com.websocket.chat.chat.domain.DomainChat;
 import com.websocket.chat.user.dao.UserRepository;
 import com.websocket.chat.user.domain.DomainUser;
+import com.websocket.chat.websocket.client.InviteClient;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +21,7 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final InviteClient inviteClient;
 
     public List<DomainChat> getChatsByUserName(String name) {
         Optional<DomainUser> user = userRepository.findByName(name);
@@ -29,17 +32,27 @@ public class ChatService {
     }
 
     @Transactional
-    public DomainChat create(String chatName, Set<String> userNames) {
+    public DomainChat create(String chatName, Set<String> invitedUsersNames, String chatCreatorName) {
         if (chatRepository.existsByName(chatName)) {
             throw new RuntimeException(String.format("Chat %s already exist", chatName));
         }
-        Set<DomainUser> users = userRepository.findByNameIn(userNames);
+        Set<DomainUser> participants = fetchUsers(invitedUsersNames, chatCreatorName);
         DomainChat newChat = DomainChat.builder()
                 .name(chatName)
-                .participants(users)
+                .participants(participants)
                 .build();
-        users.forEach(u -> u.getActiveChats().add(newChat));
-        return chatRepository.save(newChat);
+        participants.forEach(user -> user.getActiveChats().add(newChat));
+
+        DomainChat savedChat = chatRepository.save(newChat);
+
+        inviteClient.sendInvites(chatName, invitedUsersNames);
+        return savedChat;
+    }
+
+    private Set<DomainUser> fetchUsers(Set<String> invitedUsers, String chatCreator) {
+        Set<String> invitedUsersCopy = new HashSet<>(invitedUsers);
+        invitedUsersCopy.add(chatCreator);
+        return userRepository.findByNameIn(invitedUsersCopy);
     }
 
     @Transactional

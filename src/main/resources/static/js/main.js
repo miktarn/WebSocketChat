@@ -28,11 +28,28 @@ function login(event) {
     console.info("Hi "+ state.username)
 
     api.createUser(state.username)
-        .then(response => response.data.chatNames.forEach(drawRoomButton))
+        .then(response => setUpUser(response.data))
         .catch(error => console.error(error))
 
     setVisible(addChatPage)
     addChatButton.classList.remove('hidden');
+}
+
+function setUpUser(userData) {
+    state.stompClient.subscribe('/invites/' + state.username, onInviteReceived);
+    userData.chatNames.forEach(drawRoomButton)
+}
+
+function onInviteReceived(payload) {
+    var inviteRoom = payload.body
+
+    if (state.roomMessages.has(inviteRoom)) {
+        console.log("Invalid invite: user " + state.username + " already in " + inviteRoom)
+    } else {
+        console.log("Processing invite to " + inviteRoom)
+        connectToChat(inviteRoom)
+        drawRoomButton(inviteRoom)
+    }
 }
 
 function createChatRoom(event) {
@@ -40,7 +57,7 @@ function createChatRoom(event) {
     console.info("Creating room: " + state.room + " " + state.username)
 
     if(state.username != null && state.room != null) {
-        api.createChatRoom(state.room, state.invitedUsers)
+        api.createChatRoom(state.room, state.invitedUsersCache, state.username)
             .then(() => {
                 connectToChat(state.room);
                 drawRoomButton(state.room);
@@ -71,18 +88,18 @@ function enterChatRoom(event) {
 export function connectToChat(room) {
     state.roomMessages.set(room, []);
 
-    state.stompClient.subscribe('/topic/' + state.room, onMessageReceived);
+    state.stompClient.subscribe('/topic/' + room, onMessageReceived);
 
     state.stompClient.send("/app/chat.addUser",
         {},
-        JSON.stringify({sender: state.username, room: state.room, type: 'JOIN'})
+        JSON.stringify({sender: state.username, room, type: 'JOIN'})
     )
 
     connectingElement.classList.add('hidden');
-    api.fetchRoomMessages(state.room)
+    api.fetchRoomMessages(room)
         .then(response => {
             console.log("HTTP GET response:", response.data);
-            state.roomMessages.set(state.room, response.data);
+            state.roomMessages.set(room, response.data);
             redrawChat()
         })
         .catch(error => console.error(error))
@@ -124,7 +141,7 @@ function showEnterChatPage() {
 
 function showCreateChatPage() {
     createRoomInput.value = '';
-    state.invitedUsers = [state.username]
+    state.invitedUsersCache = []
     updateInvitedUsersHeader()
     setVisible(createChatPage)
 }
@@ -133,18 +150,18 @@ function inviteUser() {
     let inviteUserInput = document.querySelector("#inviteUserInput");
     let userName = inviteUserInput.value.trim();
     api.userExists(userName)
-        .then(response => addInvitedName(userName, response.data))
+        .then(response => addToInvitedUsersCache(userName, response.data))
         .catch(error => console.error(error))
 }
 
-function addInvitedName(userName, exists) {
+function addToInvitedUsersCache(userName, exists) {
     if (!exists) {
         console.log("User " + userName + " not exist!")
-    } else if (state.invitedUsers.includes(userName)) {
+    } else if (state.invitedUsersCache.includes(userName) && state.username === userName) {
         console.log("User " + userName + " already invited!")
     } else {
         console.log("User " + userName + " founded")
-        state.invitedUsers.push(userName);
+        state.invitedUsersCache.push(userName);
         updateInvitedUsersHeader()
         inviteUserInput.value = '';
     }

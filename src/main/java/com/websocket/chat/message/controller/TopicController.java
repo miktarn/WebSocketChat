@@ -21,11 +21,11 @@ public class TopicController {
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage message) {
         if (message.getRoom() != null) {
-            log.info(String.format("ChatMessage received for room %s from user %s",message.getRoom(), message.getSender()));
+            log.info(String.format("ChatMessage received for room %s from user %s", message.getRoom(), message.getSender()));
             messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
             messageService.persist(message);
         } else {
-            log.info("Null room recieved for user "+ message.getSender());
+            log.info("Null room received for user "+ message.getSender());
         }
     }
 

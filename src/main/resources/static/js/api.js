@@ -4,8 +4,8 @@ export function createUser(userName) {
     return axios.post(`http://localhost:8080/user?name=${userName}`);
 }
 
-export function createChatRoom(name, userNames) {
-    return axios.post('http://localhost:8080/chat', { name, userNames });
+export function createChatRoom(roomName, invitedUsersNames, creatorName) {
+    return axios.post('http://localhost:8080/chat', { roomName, invitedUsersNames, creatorName });
 }
 
 export function connectUserToChat(chatName, userName) {

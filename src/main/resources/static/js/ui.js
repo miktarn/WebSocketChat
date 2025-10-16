@@ -84,5 +84,5 @@ export function redrawChat() {
 
 export function updateInvitedUsersHeader() {
     let invitedUsersHeader = document.querySelector('#invitedUserList');
-    invitedUsersHeader.textContent = state.invitedUsers.join(", ")
+    invitedUsersHeader.textContent = state.invitedUsersCache.join(", ")
 }

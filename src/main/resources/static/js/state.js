@@ -5,7 +5,7 @@ export const state = {
     room: null,
     roomMessages: new Map(),
     visibleContainer: document.querySelector('#username-page'),
-    invitedUsers: [],
+    invitedUsersCache: [],
     stompClient :null,
 };
 

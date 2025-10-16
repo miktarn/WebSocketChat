@@ -27,7 +27,7 @@ public class ChatController {
 
     @PostMapping
     public DomainChat create(@RequestBody CreateChatRequest req) {
-        return chatService.create(req.name(), req.userNames());
+        return chatService.create(req.roomName(), req.invitedUsersNames(), req.creatorName());
     }
 
     @PostMapping("/user")
