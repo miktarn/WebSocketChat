@@ -29,6 +29,7 @@ function login(event) {
 
     api.createUser(state.username)
         .then(response => response.data.chatNames.forEach(drawRoomButton))
+        .catch(error => console.error(error))
 
     setVisible(addChatPage)
     addChatButton.classList.remove('hidden');
@@ -45,9 +46,7 @@ function createChatRoom(event) {
                 drawRoomButton(state.room);
                 setVisible(chatPage)
             })
-            .catch(function (error) {
-                console.log(error);
-            })
+            .catch(error => console.error(error))
     }
     event.preventDefault();
 }
@@ -65,9 +64,7 @@ function enterChatRoom(event) {
                 drawRoomButton(state.room);
                 setVisible(chatPage)
             })
-            .catch(function (error) {
-                console.log(error);
-            })
+            .catch(error => console.error(error))
     }
 }
 
@@ -88,6 +85,7 @@ export function connectToChat(room) {
             state.roomMessages.set(state.room, response.data);
             redrawChat()
         })
+        .catch(error => console.error(error))
 }
 
 
@@ -134,11 +132,18 @@ function showCreateChatPage() {
 function inviteUser() {
     let inviteUserInput = document.querySelector("#inviteUserInput");
     let userName = inviteUserInput.value.trim();
-    if (!api.userExists(userName)) {
+    api.userExists(userName)
+        .then(response => addInvitedName(userName, response.data))
+        .catch(error => console.error(error))
+}
+
+function addInvitedName(userName, exists) {
+    if (!exists) {
         console.log("User " + userName + " not exist!")
     } else if (state.invitedUsers.includes(userName)) {
         console.log("User " + userName + " already invited!")
     } else {
+        console.log("User " + userName + " founded")
         state.invitedUsers.push(userName);
         updateInvitedUsersHeader()
         inviteUserInput.value = '';

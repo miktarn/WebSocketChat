@@ -12,15 +12,15 @@
 </noscript>
 
 <div id="room-list-page">
-    <div class="room-list-page-container" >
-        <button id="addChatButton"  type="button" class="accent username-submit hidden">Add Chat</button>
+    <div class="room-list-page-container">
+        <button id="addChatButton" type="button" class="accent username-submit hidden">Add Chat</button>
     </div>
 </div>
 
 
 <div id="username-page">
     <div class="interactive-container">
-        <h1 class="title">Type your username to enter the Chatroom</h1>
+        <h1 class="title">Type your username</h1>
         <form id="usernameForm" name="usernameForm">
             <div class="form-group">
                 <input required type="text" id="name" placeholder="Username" autocomplete="off" class="form-control"/>
@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<div id="add-chat-page"  class="hidden">
+<div id="add-chat-page" class="hidden">
     <div class="interactive-container">
         <div class="form-group">
             <button id="showEnterChatPageButton" type="button" class="accent username-submit">
@@ -50,15 +50,20 @@
         <h1 class="title">Create new chat</h1>
         <form id="createChatForm" name="createChatForm">
             <div class="form-group">
-                <input required type="text" id="createRoomInput" placeholder="Chatroom" autocomplete="off" class="form-control"/>
+                <input required type="text" id="createRoomInput" placeholder="Chatroom" autocomplete="off"
+                       class="form-control"/>
             </div>
-            <br><h3  class="title">Added users: </h3><h3 id="invitedUserList" class="title"></h3><br>
-            <div class="form-group">
-                <input type="text" id="inviteUserInput" placeholder="Paste username" autocomplete="off" class="form-control"/>
+            <div class="flex-form-group">
+                    <h4>Added users: </h4>
+                <h4 id="invitedUserList"></h4>
             </div>
-            <div class="form-group">
-                <button id="inviteUserButton" type="button" class="accent username-submit">Add user</button>
+            <div class="form-group input-group clearfix">
+                    <input type="text" id="inviteUserInput" placeholder="Paste username" autocomplete="off"
+                           class="form-control"/>
+                    <button id="inviteUserButton" type="button" class="accent username-submit">Add user</button>
             </div>
+
+
             <div class="form-group">
                 <button type="submit" class="accent username-submit">Create chat</button>
             </div>
@@ -71,7 +76,8 @@
         <h1 class="title">Enter existing chat</h1>
         <form id="enterChatForm" name="enterChatForm">
             <div class="form-group">
-                <input required type="text" id="enterChatInput" placeholder="Chatroom" autocomplete="off" class="form-control"/>
+                <input required type="text" id="enterChatInput" placeholder="Chatroom" autocomplete="off"
+                       class="form-control"/>
             </div>
             <div class="form-group">
                 <button type="submit" class="accent username-submit">Enter chat</button>
