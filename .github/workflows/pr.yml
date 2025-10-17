@@ -19,7 +19,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven
+      - name: Verify checkstyle
         run: mvn clean verify --batch-mode --update-snapshots
 
       - name: Run tests
