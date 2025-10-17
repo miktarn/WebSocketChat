@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageMapper {
 
-    public DomainMessage toDomainMessage(ChatMessage chatMessage, DomainUser user, DomainChat chat) {
+    public DomainMessage toDomainMessage(ChatMessage chatMessage,
+                                         DomainUser user,
+                                         DomainChat chat) {
         return DomainMessage.builder()
                 .content(chatMessage.getContent())
                 .sender(user)
