@@ -1,7 +1,5 @@
 package com.websocket.chat.message.service;
 
-import static java.lang.String.*;
-
 import com.websocket.chat.chat.dao.ChatRepository;
 import com.websocket.chat.chat.domain.DomainChat;
 import com.websocket.chat.message.ChatMessage;
@@ -29,7 +27,8 @@ public class MessageService {
         Optional<DomainUser> user = userRepository.findByName(chatMessage.getSender());
         Optional<DomainChat> chat = chatRepository.findByName(chatMessage.getRoom());
         if (user.isEmpty() || chat.isEmpty()) {
-            throw new IllegalArgumentException(format("Can't persist message for user %s and chat %s", user, chat));
+            throw new IllegalArgumentException(
+                    String.format("Can't persist message for user %s and chat %s", user, chat));
         }
         DomainMessage newMessage = map(chatMessage, user.get(), chat.get());
         return map(messageRepository.save(newMessage));

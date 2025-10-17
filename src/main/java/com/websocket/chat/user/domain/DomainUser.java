@@ -1,6 +1,5 @@
 package com.websocket.chat.user.domain;
 
-
 import com.websocket.chat.chat.domain.DomainChat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +12,6 @@ import jakarta.persistence.Table;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

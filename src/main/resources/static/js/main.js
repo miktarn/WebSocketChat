@@ -4,21 +4,22 @@ import { state, setVisible, initStompClient} from "./state.js";
 import {drawMessage, drawRoomButton, redrawChat, updateInvitedUsersHeader} from './ui.js';
 import * as api from './api.js';
 
-var addChatPage = document.querySelector('#add-chat-page');
-var createChatPage = document.querySelector('#create-chat-page');
-var connectToChatPage = document.querySelector('#enter-chat-page');
-var chatPage = document.querySelector('#chat-page');
+const addChatPage = document.querySelector('#add-chat-page');
+const createChatPage = document.querySelector('#create-chat-page');
+const connectToChatPage = document.querySelector('#enter-chat-page');
+const chatPage = document.querySelector('#chat-page');
 
-var usernameForm = document.querySelector('#usernameForm');
-var createChatForm = document.querySelector('#createChatForm');
-var messageForm = document.querySelector('#messageForm');
-var enterChatForm = document.querySelector('#enterChatForm');
-var messageInput = document.querySelector('#message');
-var messageArea = document.querySelector('#messageArea');
-var connectingElement = document.querySelector('.connecting');
-let createRoomInput = document.querySelector('#createRoomInput');
-let enterChatInput = document.querySelector('#enterChatInput');
-var addChatButton = document.querySelector('#addChatButton')
+const usernameForm = document.querySelector('#usernameForm');
+const createChatForm = document.querySelector('#createChatForm');
+const messageForm = document.querySelector('#messageForm');
+const enterChatForm = document.querySelector('#enterChatForm');
+const messageInput = document.querySelector('#message');
+const messageArea = document.querySelector('#messageArea');
+const connectingElement = document.querySelector('.connecting');
+const createRoomInput = document.querySelector('#createRoomInput');
+const enterChatInput = document.querySelector('#enterChatInput');
+const addChatButton = document.querySelector('#addChatButton')
+const inviteUserInput = document.querySelector("#inviteUserInput");
 
 initStompClient()
 
@@ -41,7 +42,7 @@ function setUpUser(userData) {
 }
 
 function onInviteReceived(payload) {
-    var inviteRoom = payload.body
+    const inviteRoom = payload.body
 
     if (state.roomMessages.has(inviteRoom)) {
         console.log("Invalid invite: user " + state.username + " already in " + inviteRoom)
@@ -107,9 +108,9 @@ export function connectToChat(room) {
 
 
 function sendMessage(event) {
-    var messageContent = messageInput.value.trim();
+    const messageContent = messageInput.value.trim();
     if(messageContent && state.stompClient) {
-        var chatMessage = {
+        const chatMessage = {
             sender: state.username,
             content: messageInput.value,
             room: state.room,
@@ -122,7 +123,7 @@ function sendMessage(event) {
 }
 
 function onMessageReceived(payload) {
-    var message = JSON.parse(payload.body);
+    const message = JSON.parse(payload.body);
 
     if (message.room === state.room) {
         drawMessage(message)
@@ -147,8 +148,7 @@ function showCreateChatPage() {
 }
 
 function inviteUser() {
-    let inviteUserInput = document.querySelector("#inviteUserInput");
-    let userName = inviteUserInput.value.trim();
+    const userName = inviteUserInput.value.trim();
     api.userExists(userName)
         .then(response => addToInvitedUsersCache(userName, response.data))
         .catch(error => console.error(error))

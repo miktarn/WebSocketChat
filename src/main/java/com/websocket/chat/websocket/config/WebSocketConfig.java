@@ -10,14 +10,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    public static final String TOPIC = "/topic";
+    public static final String INVITES = "/invites";
+    public static final String APPLICATION = "/app";
+    public static final String WEB_SOCKET = "/ws";
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS();
+        registry.addEndpoint(WEB_SOCKET).withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/invites");
+        registry.setApplicationDestinationPrefixes(APPLICATION);
+        registry.enableSimpleBroker(TOPIC, INVITES);
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 public class ChatApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ChatApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ChatApplication.class, args);
+    }
 }

@@ -1,5 +1,7 @@
 package com.websocket.chat.websocket.config;
 
+import static com.websocket.chat.websocket.config.WebSocketConfig.TOPIC;
+
 import com.websocket.chat.message.ChatMessage;
 import com.websocket.chat.message.MessageType;
 import com.websocket.chat.message.service.MessageService;
@@ -37,7 +39,8 @@ public class WebSocketEventListener {
                         .sender(username)
                         .room(room)
                         .build();
-                messageTemplate.convertAndSend("/topic/" + room, chatMessage);
+                String destinationUrl = TOPIC + "/" + room;
+                messageTemplate.convertAndSend(destinationUrl, chatMessage);
                 messageService.persist(chatMessage);
             }
         }

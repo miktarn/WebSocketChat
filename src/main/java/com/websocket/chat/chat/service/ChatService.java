@@ -1,6 +1,5 @@
 package com.websocket.chat.chat.service;
 
-
 import com.websocket.chat.chat.dao.ChatRepository;
 import com.websocket.chat.chat.domain.DomainChat;
 import com.websocket.chat.user.dao.UserRepository;
@@ -32,11 +31,11 @@ public class ChatService {
     }
 
     @Transactional
-    public DomainChat create(String chatName, Set<String> invitedUsersNames, String chatCreatorName) {
+    public DomainChat create(String chatName, Set<String> invitedUsersNames, String creatorName) {
         if (chatRepository.existsByName(chatName)) {
             throw new RuntimeException(String.format("Chat %s already exist", chatName));
         }
-        Set<DomainUser> participants = fetchUsers(invitedUsersNames, chatCreatorName);
+        Set<DomainUser> participants = fetchUsers(invitedUsersNames, creatorName);
         DomainChat newChat = DomainChat.builder()
                 .name(chatName)
                 .participants(participants)

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
     private final MessageService messageService;
 
-
     @GetMapping
     public List<ChatMessage> getRoomMessages(@RequestParam String room) {
         return messageService.getAllByRoomChronologically(room);

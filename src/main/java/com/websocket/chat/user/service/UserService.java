@@ -2,7 +2,6 @@ package com.websocket.chat.user.service;
 
 import com.websocket.chat.user.dao.UserRepository;
 import com.websocket.chat.user.domain.DomainUser;
-import com.websocket.chat.user.dto.UserResponseDto;
 import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

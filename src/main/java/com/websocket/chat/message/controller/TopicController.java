@@ -4,7 +4,7 @@ import com.websocket.chat.message.ChatMessage;
 import com.websocket.chat.message.service.MessageService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -12,7 +12,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
-@Log
+@Slf4j
 @RequiredArgsConstructor
 public class TopicController {
     private final MessageService messageService;
@@ -21,11 +21,12 @@ public class TopicController {
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage message) {
         if (message.getRoom() != null) {
-            log.info(String.format("ChatMessage received for room %s from user %s", message.getRoom(), message.getSender()));
+            log.info("ChatMessage received for room {} from user {}",
+                    message.getRoom(), message.getSender());
             messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
             messageService.persist(message);
         } else {
-            log.info("Null room received for user "+ message.getSender());
+            log.info("Null room received for user {}", message.getSender());
         }
     }
 
@@ -36,7 +37,8 @@ public class TopicController {
         messageService.persist(message);
     }
 
-    private static void saveUserInfoInSession(ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
+    private static void saveUserInfoInSession(ChatMessage message,
+                                              SimpMessageHeaderAccessor headerAccessor) {
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
         sessionAttributes.put("username", message.getSender());
 

@@ -16,7 +16,7 @@ export function setVisible(domContainer) {
 }
 
 export function initStompClient() {
-    var socket = new SockJS('/ws');
+    const socket = new SockJS('/ws');
     state.stompClient = Stomp.over(socket);
     state.stompClient.connect({}, function (frame) {
         console.log("Connected to " + frame)
@@ -24,7 +24,7 @@ export function initStompClient() {
 }
 
 function onError(error) {
-    var connectingElement = document.querySelector('.connecting');
+    const connectingElement = document.querySelector('.connecting');
     connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
     connectingElement.style.color = 'red';
 }
