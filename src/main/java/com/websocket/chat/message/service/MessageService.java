@@ -22,6 +22,7 @@ public class MessageService {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MessageMapper mapper;
+
     @Transactional
     public ChatMessage persist(ChatMessage chatMessage) {
 
@@ -40,7 +41,4 @@ public class MessageService {
                 .map(mapper::toChatMessage)
                 .collect(Collectors.toList());
     }
-
-
-
 }

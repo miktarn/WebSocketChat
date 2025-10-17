@@ -32,21 +32,14 @@ public class TopicController {
 
     @MessageMapping("/chat.addUser")
     public void addUser(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
-        saveUserInfoInSession(message, headerAccessor);
+        saveUsernameInSession(message.getSender(), headerAccessor);
         messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
         messageService.persist(message);
     }
 
-    private static void saveUserInfoInSession(ChatMessage message,
+    private static void saveUsernameInSession(String username,
                                               SimpMessageHeaderAccessor headerAccessor) {
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
-        sessionAttributes.put("username", message.getSender());
-
-        String chats = (String) sessionAttributes.get("chats");
-        if (chats == null) {
-            sessionAttributes.put("chats", message.getRoom());
-        } else {
-            sessionAttributes.put("chats", String.format("%s:%s", chats, message.getRoom()));
-        }
+        sessionAttributes.put("username", username);
     }
 }
