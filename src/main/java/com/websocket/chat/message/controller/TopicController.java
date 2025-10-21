@@ -2,12 +2,10 @@ package com.websocket.chat.message.controller;
 
 import com.websocket.chat.message.ChatMessage;
 import com.websocket.chat.message.service.MessageService;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -28,18 +26,5 @@ public class TopicController {
         } else {
             log.info("Null room received for user {}", message.getSender());
         }
-    }
-
-    @MessageMapping("/chat.addUser")
-    public void addUser(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
-        saveUsernameInSession(message.getSender(), headerAccessor);
-        messagingTemplate.convertAndSend("/topic/" + message.getRoom(), message);
-        messageService.persist(message);
-    }
-
-    private static void saveUsernameInSession(String username,
-                                              SimpMessageHeaderAccessor headerAccessor) {
-        Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
-        sessionAttributes.put("username", username);
     }
 }

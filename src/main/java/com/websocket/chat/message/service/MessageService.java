@@ -3,6 +3,7 @@ package com.websocket.chat.message.service;
 import com.websocket.chat.chat.dao.ChatRepository;
 import com.websocket.chat.chat.domain.DomainChat;
 import com.websocket.chat.message.ChatMessage;
+import com.websocket.chat.message.MessageType;
 import com.websocket.chat.message.dao.MessageRepository;
 import com.websocket.chat.message.domain.DomainMessage;
 import com.websocket.chat.user.dao.UserRepository;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class MessageService {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MessageMapper mapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public ChatMessage persist(ChatMessage chatMessage) {
@@ -40,5 +43,13 @@ public class MessageService {
         return messageRepository.findAllByRoomNameOrderByCreationTime(room).stream()
                 .map(mapper::toChatMessage)
                 .collect(Collectors.toList());
+    }
+
+    public ChatMessage processMessage(ChatMessage chatMessage) {
+        if (chatMessage == null || chatMessage.getType() != MessageType.JOIN) {
+            throw new IllegalArgumentException("Unsupported message type. Message: " + chatMessage);
+        }
+        messagingTemplate.convertAndSend("/topic/" + chatMessage.getSender(), chatMessage);
+        return persist(chatMessage);
     }
 }
