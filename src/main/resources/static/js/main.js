@@ -21,6 +21,15 @@ const enterChatInput = document.querySelector('#enterChatInput');
 const addChatButton = document.querySelector('#addChatButton')
 const inviteUserInput = document.querySelector("#inviteUserInput");
 
+usernameForm.addEventListener('submit', login, true)
+document.getElementById("inviteUserButton").addEventListener('click', inviteUser)
+document.getElementById("showEnterChatPageButton").addEventListener('click', showEnterChatPage)
+document.getElementById("showCreateChatPageButton").addEventListener('click', showCreateChatPage)
+createChatForm.addEventListener('submit', createChatRoom, true)
+enterChatForm.addEventListener('submit', enterChatRoom, true)
+messageForm.addEventListener('submit', sendMessage, true)
+document.getElementById("addChatButton").addEventListener('click', () => setVisible(addChatPage))
+
 initStompClient()
 
 function login(event) {
@@ -91,11 +100,12 @@ export function connectToChat(room) {
 
     state.stompClient.subscribe('/topic/' + room, onMessageReceived);
 
-    state.stompClient.send("/app/chat.addUser",
-        {},
-        JSON.stringify({sender: state.username, room, type: 'JOIN'})
-    )
+    api.postMessage(room, state.username, api.MESSAGE_TYPE_JOIN)
+        .then(() => renderRoomMessages(room))
+        .catch(error => console.error(error))
+}
 
+function renderRoomMessages(room) {
     connectingElement.classList.add('hidden');
     api.fetchRoomMessages(room)
         .then(response => {
@@ -105,7 +115,6 @@ export function connectToChat(room) {
         })
         .catch(error => console.error(error))
 }
-
 
 function sendMessage(event) {
     const messageContent = messageInput.value.trim();
@@ -132,8 +141,6 @@ function onMessageReceived(payload) {
 
     state.roomMessages.get(message.room).push(message);
 }
-
-usernameForm.addEventListener('submit', login, true)
 
 function showEnterChatPage() {
     enterChatInput.value = '';
@@ -166,11 +173,3 @@ function addToInvitedUsersCache(userName, exists) {
         inviteUserInput.value = '';
     }
 }
-
-document.getElementById("inviteUserButton").addEventListener('click', inviteUser)
-document.getElementById("showEnterChatPageButton").addEventListener('click', showEnterChatPage)
-document.getElementById("showCreateChatPageButton").addEventListener('click', showCreateChatPage)
-createChatForm.addEventListener('submit', createChatRoom, true)
-enterChatForm.addEventListener('submit', enterChatRoom, true)
-messageForm.addEventListener('submit', sendMessage, true)
-document.getElementById("addChatButton").addEventListener('click', () => setVisible(addChatPage))
