@@ -1,6 +1,6 @@
 'use strict';
 
-import { state, setVisible, initStompClient} from "./state.js";
+import { state, setVisible, initStompClient, addToInvitedUsersCache} from "./state.js";
 import {drawMessage, drawRoomButton, redrawChat, updateInvitedUsersHeader} from './ui.js';
 import * as api from './api.js';
 
@@ -8,8 +8,6 @@ const addChatPage = document.querySelector('#add-chat-page');
 const createChatPage = document.querySelector('#create-chat-page');
 const connectToChatPage = document.querySelector('#enter-chat-page');
 const chatPage = document.querySelector('#chat-page');
-
-const usernameForm = document.querySelector('#usernameForm');
 const createChatForm = document.querySelector('#createChatForm');
 const messageForm = document.querySelector('#messageForm');
 const enterChatForm = document.querySelector('#enterChatForm');
@@ -21,32 +19,26 @@ const enterChatInput = document.querySelector('#enterChatInput');
 const addChatButton = document.querySelector('#addChatButton')
 const inviteUserInput = document.querySelector("#inviteUserInput");
 
-usernameForm.addEventListener('submit', login, true)
 document.getElementById("inviteUserButton").addEventListener('click', inviteUser)
 document.getElementById("showEnterChatPageButton").addEventListener('click', showEnterChatPage)
+document.getElementById("showEnterChatPageButton").addEventListener('click', showEnterChatPage)
+document.getElementById("showLoginPageButton").addEventListener('click', showLoginPage)
+document.getElementById("showLoginPageButton2").addEventListener('click', showLoginPage)
+document.getElementById("showSighInPageButton").addEventListener('click', showSighInPage)
+document.getElementById("showSighInPageButton2").addEventListener('click', showSighInPage)
 document.getElementById("showCreateChatPageButton").addEventListener('click', showCreateChatPage)
 createChatForm.addEventListener('submit', createChatRoom, true)
 enterChatForm.addEventListener('submit', enterChatRoom, true)
 messageForm.addEventListener('submit', sendMessage, true)
 document.getElementById("addChatButton").addEventListener('click', () => setVisible(addChatPage))
 
+
 initStompClient()
 
-function login(event) {
-    event.preventDefault()
-    state.username = document.querySelector('#name').value.trim();
-    console.info("Hi "+ state.username)
-
-    api.createUser(state.username)
-        .then(response => setUpUser(response.data))
-        .catch(error => console.error(error))
-
+export function setUpUser(userData) {
+    state.stompClient.subscribe('/invites/' + state.username, onInviteReceived);
     setVisible(addChatPage)
     addChatButton.classList.remove('hidden');
-}
-
-function setUpUser(userData) {
-    state.stompClient.subscribe('/invites/' + state.username, onInviteReceived);
     userData.chatNames.forEach(drawRoomButton)
 }
 
@@ -161,15 +153,14 @@ function inviteUser() {
         .catch(error => console.error(error))
 }
 
-function addToInvitedUsersCache(userName, exists) {
-    if (!exists) {
-        console.log("User " + userName + " not exist!")
-    } else if (state.invitedUsersCache.includes(userName) && state.username === userName) {
-        console.log("User " + userName + " already invited!")
-    } else {
-        console.log("User " + userName + " founded")
-        state.invitedUsersCache.push(userName);
-        updateInvitedUsersHeader()
-        inviteUserInput.value = '';
-    }
+function showLoginPage() {
+    document.querySelector('#loginForm').reset();
+    const loginPage = document.querySelector("#login-page");
+    setVisible(loginPage)
+}
+
+function showSighInPage() {
+    document.querySelector('#sighInForm').reset();
+    const sighInPage = document.querySelector("#sighIn-page");
+    setVisible(sighInPage)
 }

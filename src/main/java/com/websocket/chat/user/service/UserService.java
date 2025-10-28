@@ -1,5 +1,6 @@
 package com.websocket.chat.user.service;
 
+import com.websocket.chat.security.util.HashUtil;
 import com.websocket.chat.user.dao.UserRepository;
 import com.websocket.chat.user.domain.DomainUser;
 import java.util.Collections;
@@ -13,13 +14,14 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public DomainUser create(String name) {
-        Optional<DomainUser> founded = userRepository.findByName(name);
+    public DomainUser create(String username, String password) {
+        Optional<DomainUser> founded = userRepository.findByName(username);
         if (founded.isPresent()) {
-            return founded.get();
+            throw new IllegalStateException("User " + username + " already exists");
         }
         return userRepository.save(DomainUser.builder()
-                .name(name)
+                .name(username)
+                .password(HashUtil.hashPassword(password))
                 .activeChats(Collections.emptySet())
                 .build());
     }

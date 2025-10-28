@@ -3,8 +3,12 @@
 const baseUrl = "http://localhost:8080"
 export const MESSAGE_TYPE_JOIN = "JOIN";
 
-export function createUser(userName) {
-    return axios.post(baseUrl + `/user?name=${userName}`);
+export function login(username, password) {
+    return axios.post(baseUrl + `/auth/login`, {username, password});
+}
+
+export function sighIn(username, password) {
+    return axios.post(baseUrl + `/auth/sighIn`, {username, password});
 }
 
 export function userExists(userName) {

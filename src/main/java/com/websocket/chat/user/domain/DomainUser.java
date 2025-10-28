@@ -30,6 +30,7 @@ public class DomainUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String password;
     @ManyToMany
     @JoinTable(
             name = "user_chat",

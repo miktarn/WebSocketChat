@@ -17,17 +17,57 @@
     </div>
 </div>
 
-
-<div id="username-page">
+<div id="auth-option-page">
     <div class="interactive-container">
-        <h1 class="title">Type your username</h1>
-        <form id="usernameForm" name="usernameForm">
+        <div class="form-group">
+            <button id="showLoginPageButton" type="button" class="accent username-submit">
+                Login
+            </button>
+            <button id="showSighInPageButton" type="button" class="accent username-submit">
+                Sigh in
+            </button>
+        </div>
+    </div>
+</div>
+
+<!--change to login page-->
+<div id="login-page" class="hidden">
+    <div class="interactive-container">
+        <h1 class="title">Login</h1>
+        <form id="loginForm" name="loginForm">
             <div class="form-group">
-                <input required type="text" id="name" placeholder="Username" autocomplete="off" class="form-control"/>
+                <input required type="text" id="loginUsername" placeholder="Username" autocomplete="off" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input required type="password" id="loginPassword" placeholder="Password" autocomplete="off" class="form-control"/>
             </div>
             <div class="form-group">
                 <button type="submit" class="accent username-submit">Login</button>
             </div>
+            <button id="showSighInPageButton2" type="button" class="accent username-submit">
+                SighIn instead
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- change to sighIn page-->
+<div id="sighIn-page" class="hidden">
+    <div class="interactive-container">
+        <h1 class="title">Sigh in</h1>
+        <form id="sighInForm" name="sighInForm">
+            <div class="form-group">
+                <input required type="text" id="sighInUsername" placeholder="Username" autocomplete="off" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input required type="password" id="sighInPassword" placeholder="Password" autocomplete="off" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="accent username-submit">Sigh in</button>
+            </div>
+            <button id="showLoginPageButton2" type="button" class="accent username-submit">
+                Login instead
+            </button>
         </form>
     </div>
 </div>
@@ -113,5 +153,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="module" src="/js/main.js"></script>
+<script type="module" src="/js/auth.js"></script>
 </body>
 </html>
