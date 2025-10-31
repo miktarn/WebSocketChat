@@ -1,17 +1,18 @@
 package com.websocket.chat.user.service;
 
-import com.websocket.chat.security.util.HashUtil;
 import com.websocket.chat.user.dao.UserRepository;
 import com.websocket.chat.user.domain.DomainUser;
 import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
     public DomainUser create(String username, String password) {
@@ -21,7 +22,7 @@ public class UserService {
         }
         return userRepository.save(DomainUser.builder()
                 .name(username)
-                .password(HashUtil.hashPassword(password))
+                .password(passwordEncoder.encode(password))
                 .activeChats(Collections.emptySet())
                 .build());
     }
